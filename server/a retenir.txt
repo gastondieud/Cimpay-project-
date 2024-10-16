@@ -1,0 +1,4 @@
+mongo connect 
+mongodb+srv://<db_username>:<db_password>@cluster0.73550.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+stripe API test key:
+sk_test_51Q7xpu01eXICwd1RmodqfzQ8UIVRhViyVPOxr4vZAHioImbMZHJiR9XjiTV9n0pp9ww6MJF4igReBsquX5NODu7F00fm5zsHf6

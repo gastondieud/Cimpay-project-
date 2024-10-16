@@ -1,0 +1,209 @@
+## API Endpoints
+
+### Authentification
+- POST /api/auth/register
+  - Description : Inscription d'un nouvel utilisateur
+  - Corps de la requête : { "name": "string", "email": "string", "password": "string", "phone": "string" }
+  - Réponse : { "token": "string" }
+
+- POST /api/auth/login
+  - Description : Connexion d'un utilisateur existant
+  - Corps de la requête : { "email": "string", "password": "string" }
+  - Réponse : { "token": "string" }
+
+### Produits
+- GET /api/products
+  - Description : Liste tous les produits
+  - Paramètres de requête optionnels : 
+    - page (défaut: 1)
+    - limit (défaut: 10)
+    - category (filtre par catégorie)
+  - Réponse : { "products": [...], "totalPages": number, "currentPage": number }
+
+- POST /api/products
+  - Description : Crée un nouveau produit
+  - Corps de la requête : { "name": "string", "description": "string", "price": number, "stock": number, "category": "string" }
+  - Réponse : { "product": {...} }
+
+- GET /api/products/:id
+  - Description : Récupère un produit spécifique
+  - Paramètres de chemin : id (ID du produit)
+  - Réponse : { "product": {...} }
+
+- PUT /api/products/:id
+  - Description : Met à jour un produit existant
+  - Paramètres de chemin : id (ID du produit)
+  - Corps de la requête : { "name": "string", "description": "string", "price": number, "stock": number, "category": "string" }
+  - Réponse : { "product": {...} }
+
+- DELETE /api/products/:id
+  - Description : Supprime un produit
+  - Paramètres de chemin : id (ID du produit)
+  - Réponse : { "message": "Produit supprimé avec succès" }
+
+### Paiements
+- POST /api/payments/create-payment-intent
+  - Description : Crée une intention de paiement
+  - Corps de la requête : { "amount": number, "currency": "string" }
+  - Réponse : { "clientSecret": "string" }
+
+- GET /api/payments/payment-success
+  - Description : Gère le succès du paiement
+  - Paramètres de requête : session_id (ID de la session de paiement Stripe)
+  - Réponse : { "message": "Paiement réussi" }
+
+- GET /api/payments/payment-cancel
+  - Description : Gère l'annulation du paiement
+  - Réponse : { "message": "Paiement annulé" }
+
+Note : Tous les endpoints, à l'exception de /api/auth/register et /api/auth/login, nécessitent un token JWT valide dans l'en-tête Authorization de la requête.
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+# Cimpay - Plateforme de Paiement en Ligne
+
+## Description du Projet 
+
+Cimpay est une plateforme de paiement en ligne sécurisée conçue pour faciliter les transactions électroniques pour les entreprises et les particuliers. Cette application offre une API robuste pour l'intégration des paiements, la gestion des utilisateurs, des produits et des commandes.
+
+## Fonctionnalités Principales
+
+1. Authentification des utilisateurs
+   - Inscription et connexion sécurisées
+   - Gestion des tokens JWT pour l'authentification
+
+2. Gestion des produits
+   - Ajout, modification, suppression et listage des produits
+   - Catégorisation des produits
+
+3. Traitement des paiements
+   - Intégration avec Stripe pour des paiements sécurisés
+   - Création d'intentions de paiement
+   - Gestion des succès et annulations de paiement
+
+4. Gestion des commandes
+   - Création de nouvelles commandes
+   - Suivi du statut des commandes
+   - Historique des commandes par utilisateur
+
+5. API RESTful
+   - Endpoints bien définis pour toutes les fonctionnalités
+   - Pagination pour les listes de produits et commandes
+
+## Architecture Technique
+
+- Backend : Node.js avec Express.js
+- Base de données : MongoDB avec Mongoose ODM
+- Authentification : JSON Web Tokens (JWT)
+- Paiements : Intégration Stripe
+- Middleware : 
+  - CORS pour la sécurité cross-origin
+  - Morgan pour le logging
+  - Express.json et urlencoded pour le parsing des requêtes
+
+## Structure du Projet
+cimpay/
+│
+├── server/
+│   ├── server.js                 # Point d'entrée de l'application
+│   ├── routes/
+│   │   ├── index.js              # Routeur principal
+│   │   ├── authRoutes.js         # Routes d'authentification
+│   │   ├── paymentRoutes.js      # Routes de paiement
+│   │   ├── productRoutes.js      # Routes de gestion des produits
+│   │   └── orderRoutes.js        # Routes de gestion des commandes
+│   ├── models/
+│   │   ├── User.js               # Modèle utilisateur
+│   │   ├── Product.js            # Modèle produit
+│   │   └── Order.js              # Modèle commande
+│   ├── middleware/
+│   │   └── auth.js               # Middleware d'authentification
+│   ├── controllers/              # (Optionnel) Logique métier
+│   └── config/                   # Fichiers de configuration
+│
+├── .env                          # Variables d'environnement
+├── package.json
+└── README.md                     # Documentation du projet
+
+
+## Endpoints API
+
+1. Authentification
+   - POST /api/auth/register : Inscription d'un nouvel utilisateur
+   - POST /api/auth/login : Connexion d'un utilisateur existant
+   - POST /api/auth/logout : Déconnexion de l'utilisateur
+   - GET /api/auth/profile : Récupération du profil de l'utilisateur connecté
+
+2. Gestion des produits
+   - GET /api/products : Liste de tous les produits (avec pagination)
+   - GET /api/products/:id : Détails d'un produit spécifique
+   - POST /api/products : Ajout d'un nouveau produit (admin)
+   - PUT /api/products/:id : Mise à jour d'un produit existant (admin)
+   - DELETE /api/products/:id : Suppression d'un produit (admin)
+
+3. Traitement des paiements
+   - POST /api/payments/create-intent : Création d'une intention de paiement
+   - POST /api/payments/confirm : Confirmation d'un paiement réussi
+   - POST /api/payments/cancel : Annulation d'un paiement
+
+4. Gestion des commandes
+   - POST /api/orders : Création d'une nouvelle commande
+   - GET /api/orders : Liste des commandes de l'utilisateur connecté
+   - GET /api/orders/:id : Détails d'une commande spécifique
+   - PUT /api/orders/:id/status : Mise à jour du statut d'une commande (admin)
+
+5. Recherche et filtrage
+   - GET /api/products/search : Recherche de produits par mot-clé
+   - GET /api/products/category/:category : Filtrage des produits par catégorie
+
+6. Gestion du panier
+   - POST /api/cart : Ajout d'un produit au panier
+   - GET /api/cart : Récupération du contenu du panier
+   - PUT /api/cart/:productId : Mise à jour de la quantité d'un produit dans le panier
+   - DELETE /api/cart/:productId : Suppression d'un produit du panier
+
+7. Avis et notes
+   - POST /api/products/:id/reviews : Ajout d'un avis sur un produit
+   - GET /api/products/:id/reviews : Récupération des avis d'un produit
+
+8. Gestion des utilisateurs (admin)
+   - GET /api/users : Liste de tous les utilisateurs
+   - GET /api/users/:id : Détails d'un utilisateur spécifique
+   - PUT /api/users/:id : Mise à jour des informations d'un utilisateur
+   - DELETE /api/users/:id : Suppression d'un utilisateur
+
+Ces endpoints couvrent l'ensemble des fonctionnalités nécessaires pour une application e-commerce complète, en incluant la gestion des utilisateurs, des produits, des commandes, des paiements, ainsi que des fonctionnalités supplémentaires comme la recherche, le filtrage et la gestion des avis.
+
+
+9. Rôles et explications des fichiers importants
+
+   a. server.js
+      Rôle : Point d'entrée principal de l'application
+      Explication : Configure le serveur Express, établit la connexion à MongoDB, définit les middlewares globaux et lance le serveur.
+
+   b. routes/index.js
+      Rôle : Routeur principal
+      Explication : Centralise et organise toutes les routes de l'API, facilitant la gestion et la maintenance des endpoints.
+
+   c. models/
+      Rôle : Définition des schémas de données
+      Explication : Contient les modèles Mongoose pour chaque entité (User, Product, Order, etc.), définissant la structure des documents dans MongoDB.
+
+   d. middleware/auth.js
+      Rôle : Authentification des requêtes
+      Explication : Vérifie les tokens JWT pour authentifier les utilisateurs et protéger les routes sensibles.
+
+   e. controllers/ (si utilisé)
+      Rôle : Logique métier
+      Explication : Contient la logique de traitement des requêtes, séparant les préoccupations de routage et de logique métier.
+
+   f. config/
+      Rôle : Configuration de l'application
+      Explication : Stocke les paramètres de configuration, comme les variables d'environnement ou les constantes globales.
+
+   g. routes/authRoutes.js, productRoutes.js, etc.
+      Rôle : Définition des routes spécifiques
+      Explication : Chaque fichier gère un ensemble spécifique de routes liées à une fonctionnalité particulière (authentification, produits, commandes, etc.).
+
+Ces fichiers forment l'architecture de base de l'application Cimpay, assurant une structure modulaire, maintenable et évolutive pour la plateforme de paiement en ligne.
+
