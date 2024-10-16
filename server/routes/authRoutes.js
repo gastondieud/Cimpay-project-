@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 // Route d'inscription
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password,phone } = req.body;
 
     // Vérifier si l'utilisateur existe déjà
     let user = await User.findOne({ email });
@@ -19,7 +19,8 @@ router.post('/register', async (req, res) => {
     user = new User({
       username,
       email,
-      password
+      password,
+      phone
     });
 
     // Hasher le mot de passe
@@ -45,9 +46,12 @@ router.post('/register', async (req, res) => {
         res.json({ token });
       }
     );
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Erreur serveur');
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: error.message });
+    }
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
