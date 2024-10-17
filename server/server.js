@@ -6,34 +6,40 @@ const mongoose = require('mongoose');
 const path = require('path');
 
 const routes = require('./routes'); // Importez le fichier de routes principal
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
+app.use(express.json());  // Pour parser le raw JSON
+app.use(express.urlencoded({ extended: true }));  // Pour parser form-data et x-www-form-urlencoded
 app.use(morgan('combined'));
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: 'http://localhost:3001' // Ajustez si votre frontend est sur un port différent
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
-  serverSelectionTimeoutMS: 5000
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 })
-.then(() => console.log('Connected to MongoDB Atlas'))
-.catch(err => {
-  console.error('Could not connect to MongoDB Atlas');
-  console.error('Error details:', err.message);
-  console.error('Full error object:', JSON.stringify(err, null, 2));
-});
+.then(() => console.log('Connected to MongoDB'))
+.catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
 app.get('/', (req, res) => {
   res.json({ message: 'Bienvenue sur l\'API de Cimpay. Utilisez /api pour accéder aux endpoints.' });
 });
 
+app.get('/test', (req, res) => {
+  res.json({ message: 'Server is working!' });
+});
+
 app.use('/api', routes);
+app.use('/api/auth', authRoutes);
+console.log('Auth routes registered');
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -43,11 +49,12 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
+  console.log(`Use this URL to connect: http://localhost:${PORT}`);
 });
 
 
 
-  
+
 
 
