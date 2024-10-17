@@ -1,35 +1,22 @@
 const mongoose = require('mongoose');
+const getNextSequence = require('../utils/counter');
 
 const orderSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  products: [{
-    productId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
-      required: true
-    },
-    quantity: {
-      type: Number,
-      required: true
-    },
-    price: {
-      type: Number,
-      required: true
-    }
+  _id: { type: Number },
+  userId: { type: Number, ref: 'User', required: true },
+  products: [{ 
+    productId: { type: Number, ref: 'Product' },
+    quantity: { type: Number, required: true }
   }],
-  totalPrice: {
-    type: Number,
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'confirmed', 'shipped', 'delivered'],
-    default: 'pending'
-  }
+  totalAmount: { type: Number, required: true },
+  status: { type: String, default: 'pending' }
 }, { timestamps: true });
+
+orderSchema.pre('save', async function(next) {
+  if (!this._id) {
+    this._id = await getNextSequence('orderId');
+  }
+  next();
+});
 
 module.exports = mongoose.model('Order', orderSchema);

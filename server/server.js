@@ -4,6 +4,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const path = require('path');
+const initializeCounters = require('./utils/initCounters');
 
 const routes = require('./routes'); // Importez le fichier de routes principal
 const authRoutes = require('./routes/authRoutes');
@@ -21,12 +22,16 @@ app.use(cors({
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log('Connected to MongoDB');
+    return initializeCounters();
+  })
+  .then(() => {
+    console.log('Counters initialized');
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch(err => console.error('Error starting server:', err));
 
 // Routes
 app.get('/', (req, res) => {
@@ -43,14 +48,13 @@ console.log('Auth routes registered');
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
+  console.error('Error:', err);
+  res.status(400).json({ error: 'Invalid JSON in request body' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`Use this URL to connect: http://localhost:${PORT}`);
+app.use((req, res, next) => {
+  console.log('Received body:', req.body);
+  next();
 });
 
 

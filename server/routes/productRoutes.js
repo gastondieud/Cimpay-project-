@@ -26,12 +26,12 @@ router.get('/:id', async (req, res) => {
 
 // Ajouter un nouveau produit (nécessite authentification)
 router.post('/', auth, async (req, res) => {
-  const product = new Product(req.body);
   try {
-    const newProduct = await product.save();
-    res.status(201).json(newProduct);
+    const product = new Product(req.body);
+    await product.save();
+    res.status(201).json(product);
   } catch (error) {
-    res.status(400).send({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 });
 
